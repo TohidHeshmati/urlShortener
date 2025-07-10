@@ -1,10 +1,10 @@
-package com.tohid.url_shortner
+package com.tohid.url_shortener
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
-class UrlShortnerApplicationTests {
+class UrlShortenerApplicationTests {
 
     @Test
     fun contextLoads() {

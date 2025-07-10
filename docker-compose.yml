@@ -1,0 +1,11 @@
+version: '3.8'
+# docker compose up -d
+# docker-compose up -d
+services:
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3106:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: url_shortener_service
