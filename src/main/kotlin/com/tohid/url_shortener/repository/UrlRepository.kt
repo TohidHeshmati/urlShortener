@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface UrlRepository : CrudRepository<Url, Long> {
-    fun findUrlByShortUrl(shortUrl: String): Url?
+    fun findByShortUrl(shortUrl: String): Url?
+    fun findByOriginalUrl(originalUrl: String): Url?
 }

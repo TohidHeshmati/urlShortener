@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RequestMapping("/")
@@ -14,21 +15,23 @@ class MainController(
     private val urlService: UrlService
 ) {
 
-    @GetMapping("{shortUrl}")
-    fun index(@PathVariable shortUrl: String): ResponseEntity<String> {
-        val result = urlService.findUrlByShortUrl(shortUrl)
-        return if (result != null) {
-            ResponseEntity.ok(result.originalUrl)
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body("Short URL not found: $shortUrl")
-        }
+    @GetMapping("shorten")
+    fun shorten(
+        @RequestParam originalUrl: String
+    ): ResponseEntity<ShortenResponse> {
+        return ResponseEntity.ok(ShortenResponse(urlService.shorten(originalUrl)))
     }
 
-    @GetMapping("all")
-    fun getAll(): String {
-        val allUrls = urlService.findAll()
-        print(allUrls)
-        return allUrls.toString()
+    @GetMapping("{shortUrl}")
+    fun resolve(
+        @PathVariable shortUrl: String,
+    ): ResponseEntity<ResolveResponse> {
+        val original = urlService.resolve(shortUrl)
+        return if (original != null) {
+            ResponseEntity.ok(ResolveResponse(original))
+        } else {
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResolveResponse("Not Found"))
+        }
     }
 
 }
