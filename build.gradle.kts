@@ -34,6 +34,9 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     runtimeOnly("org.flywaydb:flyway-mysql")
     implementation("mysql:mysql-connector-java:8.0.33")
+
+    // documentation
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
 }
 
 kotlin {

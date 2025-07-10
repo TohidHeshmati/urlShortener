@@ -1,6 +1,7 @@
 package com.tohid.url_shortener.controller
 
 import com.tohid.url_shortener.service.UrlService
+import io.swagger.v3.oas.annotations.Operation
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -16,6 +17,7 @@ class MainController(
 ) {
 
     @GetMapping("shorten")
+    @Operation(summary = "Shorten a URL", description = "Returns a shortened version of the given original URL.")
     fun shorten(
         @RequestParam originalUrl: String
     ): ResponseEntity<ShortenResponse> {
@@ -23,6 +25,7 @@ class MainController(
     }
 
     @GetMapping("{shortUrl}")
+    @Operation(summary = "Resolve a short URL", description = "Returns the original URL for a given shortened version.")
     fun resolve(
         @PathVariable shortUrl: String,
     ): ResponseEntity<ResolveResponse> {

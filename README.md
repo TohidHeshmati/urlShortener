@@ -11,3 +11,8 @@ in some setups: `docker-compose up -d`
 
 chek the application at:
 http://localhost:8080
+
+
+
+doc:
+http://localhost:8080/swagger-ui/index.html
