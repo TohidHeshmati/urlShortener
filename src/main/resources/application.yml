@@ -20,9 +20,15 @@ spring:
 logging:
   level:
     org.hibernate.SQL: DEBUG
-
-springdoc:
+    org:
+      springdoc: DEBUG
   api-docs:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+springdoc:
+  swagger-ui:
+    enabled: true
+  api-docs:
+    enabled: true

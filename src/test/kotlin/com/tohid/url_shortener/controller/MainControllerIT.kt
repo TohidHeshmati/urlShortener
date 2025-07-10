@@ -5,10 +5,13 @@ import com.tohid.url_shortener.domain.Url
 import com.tohid.url_shortener.repository.UrlRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -32,13 +35,28 @@ class MainControllerIT(
     }
 
     @Test
+    fun `should shorten a valid URL`() {
+        val entity = HttpEntity(
+            ShortenRequest(originalUrl = "https://www.example.com"), HttpHeaders().apply {
+                contentType = MediaType.APPLICATION_JSON
+            })
+
+        val response: ResponseEntity<ShortenResponse> = restTemplate.postForEntity(
+            "$baseUrl/", entity, ShortenResponse::class.java
+        )
+
+        assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
+
+        assertThat(response.body!!.shortenedUrl).isNotBlank
+    }
+
+    @Test
     fun `should resolve shortened URL`() {
         val savedUrl = urlRepository.save(Url(originalUrl = "http://example.com/1", shortUrl = "abc001"))
 
         val response: ResponseEntity<String> = restTemplate.exchange(
             "$baseUrl/abc001", HttpMethod.GET, null, String::class.java
         )
-
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
         assertThat(response.headers.contentType).isEqualTo(MediaType.APPLICATION_JSON)
@@ -48,24 +66,48 @@ class MainControllerIT(
     }
 
     @Test
-    fun `should return 404 when short URL not found`() {
-        val response: ResponseEntity<String> = restTemplate.exchange(
-            "$baseUrl/nonexistent", HttpMethod.GET, null, String::class.java
-        )
+    fun `should return 404 for non-existent short URL`() {
+        val response = restTemplate.getForEntity("$baseUrl/unknown123", String::class.java)
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
-        val body = objectMapper.readValue(response.body, ResolveResponse::class.java)
-        assertThat(body.originalUrl).isEqualTo("Not Found")
+        val error = objectMapper.readTree(response.body)
+        assertThat(error["error"].asText()).contains("Short URL not found")
     }
 
-    @Test
-    fun `should shorten a new URL`() {
-        val response = restTemplate.getForObject(
-            "$baseUrl/shorten?originalUrl=http://newsite.com", String::class.java
-        )
+    @Nested
+    inner class ValidationTests {
 
-        val shortenResponse = objectMapper.readValue(response, ShortenResponse::class.java)
+        @Test
+        fun `should return 400 for blank URL input`() {
+            val request = ShortenRequest(originalUrl = "")
+            val headers = HttpHeaders().apply {
+                contentType = MediaType.APPLICATION_JSON
+            }
 
-        assertThat(response).isNotNull
+            val entity = HttpEntity(request, headers)
+            val response: ResponseEntity<ErrorResponse> = restTemplate.postForEntity(
+                "$baseUrl/", entity, ErrorResponse::class.java
+            )
+
+            assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+            assertThat(response.body).isEqualTo(ErrorResponse(error = "originalUrl: URL must not be blank"))
+        }
+
+        @Test
+        fun `should return 400 for invalid URL input`() {
+            val request = ShortenRequest(originalUrl = "not_a_url")
+            val headers = HttpHeaders().apply {
+                contentType = MediaType.APPLICATION_JSON
+            }
+
+            val entity = HttpEntity(request, headers)
+            val response: ResponseEntity<ErrorResponse> = restTemplate.postForEntity(
+                "$baseUrl/", entity, ErrorResponse::class.java
+            )
+
+            assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+            assertThat(response.body).isEqualTo(ErrorResponse(error = "originalUrl: Must be a valid URL"))
+        }
     }
+
 }

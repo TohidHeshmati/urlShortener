@@ -36,7 +36,11 @@ dependencies {
     implementation("mysql:mysql-connector-java:8.0.33")
 
     // documentation
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
+
+    // validation
+    implementation("org.hibernate.validator:hibernate-validator")
+    implementation("jakarta.validation:jakarta.validation-api")
 }
 
 kotlin {

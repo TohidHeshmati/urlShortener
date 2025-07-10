@@ -1,6 +1,11 @@
 package com.tohid.url_shortener.service
 
+import com.tohid.url_shortener.controller.ResolveResponse
+import com.tohid.url_shortener.controller.ShortenRequest
+import com.tohid.url_shortener.controller.ShortenResponse
 import com.tohid.url_shortener.domain.Url
+import com.tohid.url_shortener.domain.toShortenResponse
+import com.tohid.url_shortener.exception.NotFoundException
 import com.tohid.url_shortener.repository.UrlRepository
 import org.springframework.stereotype.Service
 
@@ -8,23 +13,29 @@ import org.springframework.stereotype.Service
 class UrlService(
     private val urlRepository: UrlRepository
 ) {
-        fun shorten(originalUrl: String): String {
-        val existingUrl = urlRepository.findByOriginalUrl(originalUrl)
-        if (existingUrl != null) {
-            return existingUrl.shortUrl
+    fun shorten(shortenRequest: ShortenRequest): ShortenResponse {
+        val existingUrl = urlRepository.findByOriginalUrl(shortenRequest.originalUrl)
+        return if (existingUrl != null) {
+            existingUrl.toShortenResponse()
+        } else {
+            val shortUrl = generateShortUrl(shortenRequest)
+            val result = urlRepository.save(shortUrl)
+            result.toShortenResponse()
         }
-
-        val shortUrl = generateShortUrl(originalUrl)
-        val url = Url(originalUrl = originalUrl, shortUrl = shortUrl)
-        urlRepository.save(url)
-        return shortUrl
     }
 
-    fun resolve(shortUrl: String): String? =
-        urlRepository.findByShortUrl(shortUrl)?.originalUrl
+    fun resolve(shortUrl: String): ResolveResponse =
+        ResolveResponse(
+            originalUrl = urlRepository.findByShortUrl(shortUrl)?.originalUrl ?: throw NotFoundException(
+                "Short URL not found: $shortUrl"
+            )
+        )
 
-    fun generateShortUrl(originalUrl: String): String =
-        originalUrl.hashCode().toString(36).take(8)
+    private fun generateShortUrl(shortenRequest: ShortenRequest) = Url(
+        originalUrl = shortenRequest.originalUrl, shortUrl = generateHash(shortenRequest.originalUrl)
+    )
+
+    private fun generateHash(originalUrl: String): String = originalUrl.hashCode().toString(36).take(8)
     // check existing URLs in the database
     // longer shorter url
 }

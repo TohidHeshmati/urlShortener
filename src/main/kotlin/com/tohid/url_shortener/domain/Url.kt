@@ -1,5 +1,6 @@
 package com.tohid.url_shortener.domain
 
+import com.tohid.url_shortener.controller.ShortenResponse
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -25,3 +26,5 @@ data class Url(
     @Column(name = "created_at", nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now()
 )
+
+fun Url.toShortenResponse() = ShortenResponse(shortenedUrl = shortUrl)
