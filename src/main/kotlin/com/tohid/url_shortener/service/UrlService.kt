@@ -4,10 +4,15 @@ import com.tohid.url_shortener.controller.dtos.ResolveResponseDTO
 import com.tohid.url_shortener.controller.dtos.ShortenRequestDTO
 import com.tohid.url_shortener.controller.dtos.ShortenResponseDTO
 import com.tohid.url_shortener.domain.Url
+import com.tohid.url_shortener.domain.isExpired
+import com.tohid.url_shortener.domain.toResolveResponseDTO
 import com.tohid.url_shortener.domain.toShortenResponseDTO
 import com.tohid.url_shortener.exception.NotFoundException
 import com.tohid.url_shortener.repository.UrlRepository
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
+import java.net.URI
 
 @Service
 class UrlService(
@@ -24,19 +29,39 @@ class UrlService(
         }
     }
 
-    fun resolve(shortUrl: String): ResolveResponseDTO =
-        ResolveResponseDTO(
-            originalUrl = urlRepository.findByShortUrl(shortUrl)?.originalUrl ?: throw NotFoundException(
-                "Short URL not found: $shortUrl"
-            )
-        )
+    fun resolve(shortUrl: String): ResolveResponseDTO {
+        val url = urlRepository.findByShortUrl(shortUrl)
+            ?: throw NotFoundException("Short URL not found: $shortUrl")
 
-    private fun generateShortUrl(shortenRequestDTO: ShortenRequestDTO) =
-        Url(
-            originalUrl = shortenRequestDTO.originalUrl,
-            shortUrl = generateHash(shortenRequestDTO.originalUrl),
-            expiryDate = shortenRequestDTO.expiryDate
+        if (url.isExpired()) {
+            urlRepository.delete(url)
+            throw NotFoundException("Short URL has expired: $shortUrl")
+        }
+
+        return ResolveResponseDTO(
+            originalUrl = url.originalUrl,
+            expiryDate = url.expiryDate
         )
+    }
+
+
+    fun findUrlByShortUrl(shortUrl: String): ResponseEntity<Void> {
+        val url = resolve(shortUrl)
+        val location = URI.create(url.originalUrl)
+        val status = if (url.expiryDate != null) {
+            HttpStatus.FOUND
+        } else {
+            HttpStatus.MOVED_PERMANENTLY
+        }
+
+        return ResponseEntity.status(status).location(location).build()
+    }
+
+    private fun generateShortUrl(shortenRequestDTO: ShortenRequestDTO) = Url(
+        originalUrl = shortenRequestDTO.originalUrl,
+        shortUrl = generateHash(shortenRequestDTO.originalUrl),
+        expiryDate = shortenRequestDTO.expiryDate
+    )
 
     private fun generateHash(originalUrl: String): String = originalUrl.hashCode().toString(36).take(8)
     // check existing URLs in the database

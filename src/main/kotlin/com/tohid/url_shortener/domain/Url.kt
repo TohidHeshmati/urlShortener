@@ -1,6 +1,8 @@
 package com.tohid.url_shortener.domain
 
+import com.tohid.url_shortener.controller.dtos.ResolveResponseDTO
 import com.tohid.url_shortener.controller.dtos.ShortenResponseDTO
+import com.tohid.url_shortener.exception.ExpiredURLException
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -36,3 +38,12 @@ fun Url.toShortenResponseDTO() =
         shortenedUrl = shortUrl,
         expiryDate = expiryDate
     )
+
+fun Url.toResolveResponseDTO() =
+    ResolveResponseDTO(
+        originalUrl = originalUrl,
+        expiryDate = if (isExpired()) throw ExpiredURLException(originalUrl) else expiryDate
+    )
+
+fun Url.isExpired(): Boolean =
+    expiryDate?.let { now().isAfter(it) } ?: false

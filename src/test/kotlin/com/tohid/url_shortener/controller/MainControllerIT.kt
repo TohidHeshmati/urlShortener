@@ -7,6 +7,7 @@ import com.tohid.url_shortener.controller.dtos.ShortenRequestDTO
 import com.tohid.url_shortener.controller.dtos.ShortenResponseDTO
 import com.tohid.url_shortener.domain.Url
 import com.tohid.url_shortener.repository.UrlRepository
+import org.apache.hc.client5.http.impl.classic.HttpClients
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -22,8 +23,12 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.test.context.TestConstructor
+import org.springframework.web.client.RestTemplate
+import java.net.URI
 import java.time.Instant
+import java.time.Instant.now
 
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -39,6 +44,14 @@ class MainControllerIT(
     private val headers: HttpHeaders = HttpHeaders().apply {
         contentType = MediaType.APPLICATION_JSON
     }
+
+    private val redirectSafeRestTemplate = RestTemplate(
+        HttpComponentsClientHttpRequestFactory().apply {
+            httpClient = HttpClients.custom()
+                .disableRedirectHandling()
+                .build()
+        }
+    )
 
 
     @BeforeEach
@@ -66,7 +79,7 @@ class MainControllerIT(
         val savedUrl = urlRepository.save(Url(originalUrl = "http://example.com/1", shortUrl = "abc001"))
 
         val response: ResponseEntity<String> = restTemplate.exchange(
-            "$baseUrl/abc001", HttpMethod.GET, null, String::class.java
+            "$baseUrl/resolve/abc001", HttpMethod.GET, null, String::class.java
         )
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
@@ -74,6 +87,77 @@ class MainControllerIT(
 
         val body = objectMapper.readValue(response.body, ResolveResponseDTO::class.java)
         assertThat(body.originalUrl).isEqualTo(savedUrl.originalUrl)
+    }
+
+    @Test
+    fun `redirects permanently for shortened URL without expiry date`() {
+        val savedUrl = urlRepository.save(Url(originalUrl = "http://example.com/1", shortUrl = "abc001"))
+
+        val response: ResponseEntity<String> = redirectSafeRestTemplate.exchange(
+            "$baseUrl/abc001", HttpMethod.GET, null, String::class.java
+        )
+
+        assertThat(response.statusCode).isEqualTo(HttpStatus.MOVED_PERMANENTLY)
+        assertThat(response.headers.location).isEqualTo(URI.create(savedUrl.originalUrl))
+    }
+
+    @Test
+    fun `redirects temporary for shortened URL with expiry date in future`() {
+        val savedUrl = urlRepository.save(
+            Url(
+                originalUrl = "http://example.com/1",
+                shortUrl = "abc001",
+                expiryDate = now().plusSeconds(3600)
+            )
+        )
+
+        val response: ResponseEntity<String> = redirectSafeRestTemplate.exchange(
+            "$baseUrl/abc001", HttpMethod.GET, null, String::class.java
+        )
+
+        assertThat(response.statusCode).isEqualTo(HttpStatus.FOUND)
+        assertThat(response.headers.location).isEqualTo(URI.create(savedUrl.originalUrl))
+    }
+
+    @Test
+    fun `returns not found for shortened URL with expiry date in past`() {
+        urlRepository.save(
+            Url(
+                originalUrl = "http://example.com/1",
+                shortUrl = "abc001",
+                expiryDate = now().minusSeconds(3600)
+            )
+        )
+
+        val response: ResponseEntity<String> = restTemplate.exchange(
+            "$baseUrl/abc001", HttpMethod.GET, null, String::class.java
+        )
+
+        assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+
+        val body = objectMapper.readValue(response.body, ErrorResponseDTO::class.java)
+        assertThat(body).isEqualTo(ErrorResponseDTO("Short URL has expired: abc001"))
+    }
+
+    @Test
+    fun `removes the url from db when requested and expiry date in past`() {
+        urlRepository.save(
+            Url(
+                originalUrl = "http://example.com/1",
+                shortUrl = "abc001",
+                expiryDate = now().minusSeconds(3600)
+            )
+        )
+
+        val response: ResponseEntity<String> = restTemplate.exchange(
+            "$baseUrl/abc001", HttpMethod.GET, null, String::class.java
+        )
+
+        assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+
+        val body = objectMapper.readValue(response.body, ErrorResponseDTO::class.java)
+        assertThat(body).isEqualTo(ErrorResponseDTO("Short URL has expired: abc001"))
+        assertThat(urlRepository.findByShortUrl("abc001")).isNull()
     }
 
     @Test

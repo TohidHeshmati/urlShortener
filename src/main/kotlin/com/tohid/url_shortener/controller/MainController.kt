@@ -37,7 +37,7 @@ class MainController(
         return ResponseEntity.created(URI.create(shortenResponse.shortenedUrl)).body(shortenResponse)
     }
 
-    @GetMapping("/{shortUrl}")
+    @GetMapping("/resolve/{shortUrl}")
     @Operation(summary = "Resolve a short URL", description = "Returns the original URL for a given shortened version")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "Original URL resolved"),
@@ -49,5 +49,21 @@ class MainController(
     ): ResponseEntity<ResolveResponseDTO> {
         return ResponseEntity.ok(urlService.resolve(shortUrl))
     }
+
+    @GetMapping("/{shortUrl}")
+    @Operation(
+        summary = "Redirect to the original URL",
+        description = "Redirects to the original URL for a given short URL. " +
+                "Returns 301 if the URL has no expiry date (permanent), or 302 if it does (temporary)."
+    )
+    @ApiResponses(
+        ApiResponse(responseCode = "301", description = "Permanent redirect to the original URL"),
+        ApiResponse(responseCode = "302", description = "Temporary redirect to the original URL (expiring link)"),
+        ApiResponse(responseCode = "404", description = "Short URL not found or expired"),
+        ApiResponse(responseCode = "500", description = "Unexpected server error")
+    )
+    fun redirect(
+        @PathVariable shortUrl: String,
+    ) = urlService.findUrlByShortUrl(shortUrl)
 }
 
