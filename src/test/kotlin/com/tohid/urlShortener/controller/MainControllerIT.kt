@@ -334,7 +334,9 @@ class MainControllerIT(
                 )
 
             assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-            assertThat(response.body?.error).contains("expiry_date: Invalid date format for expiryDate. Must be ISO-8601.")
+            assertThat(
+                response.body?.error,
+            ).contains("expiry_date: Invalid date format for expiryDate. Must be ISO-8601.")
         }
 
         @Test
@@ -354,7 +356,9 @@ class MainControllerIT(
                 )
 
             assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-            assertThat(response.body?.error).contains("expiry_date: Invalid date format for expiryDate. Must be ISO-8601.")
+            assertThat(
+                response.body?.error,
+            ).contains("expiry_date: Invalid date format for expiryDate. Must be ISO-8601.")
         }
 
         @Test
