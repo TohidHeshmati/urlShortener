@@ -1,6 +1,8 @@
 spring:
   application:
     name: url_shortener
+  jackson:
+    property-naming-strategy: SNAKE_CASE
 
   datasource:
     url: jdbc:mysql://localhost:3106/url_shortener_service
