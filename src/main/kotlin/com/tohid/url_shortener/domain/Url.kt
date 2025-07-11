@@ -7,7 +7,8 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import java.time.LocalDateTime
+import java.time.Instant
+import java.time.Instant.now
 
 @Entity
 @Table(name = "url")
@@ -24,7 +25,10 @@ data class Url(
     val shortUrl: String,
 
     @Column(name = "created_at", nullable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now()
+    val createdAt: Instant = now(),
+
+    @Column(name = "expiry_date", nullable = true)
+    val expiryDate: Instant? = null
 )
 
 fun Url.toShortenResponse() = ShortenResponse(shortenedUrl = shortUrl)
