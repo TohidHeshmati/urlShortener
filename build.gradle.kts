@@ -5,6 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jetbrains.kotlin.plugin.jpa") version "2.0.21"
     id("org.flywaydb.flyway") version "9.22.0"
+    id("org.jlleitschuh.gradle.ktlint") version "12.0.3"
 }
 
 group = "com.tohid.url_shortener"

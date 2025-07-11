@@ -16,3 +16,9 @@ http://localhost:8080
 
 doc:
 http://localhost:8080/swagger-ui/index.html
+
+
+#### Check formatting
+./gradlew ktlintCheck     
+# Auto-format files
+./gradlew ktlintFormat    
