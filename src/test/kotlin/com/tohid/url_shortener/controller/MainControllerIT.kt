@@ -186,6 +186,17 @@ class MainControllerIT(
         }
 
         @Test
+        fun `should return 400 when originalUrl exceeds 512 characters`() {
+            val longUrl = "http://example.com/" + "x".repeat(500)
+            val request = ShortenRequestDTO(originalUrl = longUrl)
+
+            val entity = HttpEntity(request, headers)
+            val response = restTemplate.postForEntity("$baseUrl/", entity, ErrorResponseDTO::class.java)
+
+            assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        }
+
+        @Test
         fun `should return 400 for invalid URL input`() {
             val request = ShortenRequestDTO(originalUrl = "not_a_url")
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.tohid.url_shortener.utils.SafeInstantDeserializer
 import com.tohid.url_shortener.validators.FutureInstant
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
 import org.hibernate.validator.constraints.URL
 import java.time.Instant
 
@@ -15,6 +16,7 @@ data class ShortenResponseDTO(
 data class ShortenRequestDTO(
     @field:NotBlank(message = "URL must not be blank")
     @field:URL(message = "Must be a valid URL")
+    @field:Size(max = 512, message = "URL must not exceed 512 characters")
     val originalUrl: String,
 
     @field:FutureInstant
