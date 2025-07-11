@@ -1,5 +1,8 @@
 package com.tohid.url_shortener.controller
 
+import com.tohid.url_shortener.controller.dtos.ResolveResponseDTO
+import com.tohid.url_shortener.controller.dtos.ShortenRequestDTO
+import com.tohid.url_shortener.controller.dtos.ShortenResponseDTO
 import com.tohid.url_shortener.service.UrlService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -28,9 +31,9 @@ class MainController(
         ApiResponse(responseCode = "500", description = "Unexpected error")
     )
     fun shorten(
-        @RequestBody @Valid shortenRequest: ShortenRequest
-    ): ResponseEntity<ShortenResponse> {
-        val shortenResponse = urlService.shorten(shortenRequest)
+        @RequestBody @Valid shortenRequestDTO: ShortenRequestDTO
+    ): ResponseEntity<ShortenResponseDTO> {
+        val shortenResponse = urlService.shorten(shortenRequestDTO)
         return ResponseEntity.created(URI.create(shortenResponse.shortenedUrl)).body(shortenResponse)
     }
 
@@ -43,7 +46,7 @@ class MainController(
     )
     fun resolve(
         @PathVariable shortUrl: String,
-    ): ResponseEntity<ResolveResponse> {
+    ): ResponseEntity<ResolveResponseDTO> {
         return ResponseEntity.ok(urlService.resolve(shortUrl))
     }
 }

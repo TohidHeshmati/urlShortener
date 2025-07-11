@@ -1,6 +1,10 @@
 package com.tohid.url_shortener.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.tohid.url_shortener.controller.dtos.ErrorResponseDTO
+import com.tohid.url_shortener.controller.dtos.ResolveResponseDTO
+import com.tohid.url_shortener.controller.dtos.ShortenRequestDTO
+import com.tohid.url_shortener.controller.dtos.ShortenResponseDTO
 import com.tohid.url_shortener.domain.Url
 import com.tohid.url_shortener.repository.UrlRepository
 import org.assertj.core.api.Assertions.assertThat
@@ -27,7 +31,12 @@ class MainControllerIT(
     private val objectMapper: ObjectMapper
 ) {
 
-    val baseUrl = "http://localhost:$port"
+    private val baseUrl = "http://localhost:$port"
+
+    private val headers: HttpHeaders = HttpHeaders().apply {
+        contentType = MediaType.APPLICATION_JSON
+    }
+
 
     @BeforeEach
     fun cleanDB() {
@@ -79,34 +88,28 @@ class MainControllerIT(
 
         @Test
         fun `should return 400 for blank URL input`() {
-            val request = ShortenRequest(originalUrl = "")
-            val headers = HttpHeaders().apply {
-                contentType = MediaType.APPLICATION_JSON
-            }
+            val request = ShortenRequestDTO(originalUrl = "")
 
             val entity = HttpEntity(request, headers)
-            val response: ResponseEntity<ErrorResponse> = restTemplate.postForEntity(
-                "$baseUrl/", entity, ErrorResponse::class.java
+            val response: ResponseEntity<ErrorResponseDTO> = restTemplate.postForEntity(
+                "$baseUrl/", entity, ErrorResponseDTO::class.java
             )
 
             assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-            assertThat(response.body).isEqualTo(ErrorResponse(error = "originalUrl: URL must not be blank"))
+            assertThat(response.body).isEqualTo(ErrorResponseDTO(error = "originalUrl: URL must not be blank"))
         }
 
         @Test
         fun `should return 400 for invalid URL input`() {
-            val request = ShortenRequest(originalUrl = "not_a_url")
-            val headers = HttpHeaders().apply {
-                contentType = MediaType.APPLICATION_JSON
-            }
+            val request = ShortenRequestDTO(originalUrl = "not_a_url")
 
             val entity = HttpEntity(request, headers)
-            val response: ResponseEntity<ErrorResponse> = restTemplate.postForEntity(
-                "$baseUrl/", entity, ErrorResponse::class.java
+            val response: ResponseEntity<ErrorResponseDTO> = restTemplate.postForEntity(
+                "$baseUrl/", entity, ErrorResponseDTO::class.java
             )
 
             assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-            assertThat(response.body).isEqualTo(ErrorResponse(error = "originalUrl: Must be a valid URL"))
+            assertThat(response.body).isEqualTo(ErrorResponseDTO(error = "originalUrl: Must be a valid URL"))
         }
     }
 
