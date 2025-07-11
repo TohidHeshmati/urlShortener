@@ -11,6 +11,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
@@ -21,6 +23,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.TestConstructor
+import java.time.Instant
 
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -46,12 +49,11 @@ class MainControllerIT(
     @Test
     fun `should shorten a valid URL`() {
         val entity = HttpEntity(
-            ShortenRequest(originalUrl = "https://www.example.com"), HttpHeaders().apply {
-                contentType = MediaType.APPLICATION_JSON
-            })
+            ShortenRequestDTO(originalUrl = "https://www.example.com"), headers
+        )
 
-        val response: ResponseEntity<ShortenResponse> = restTemplate.postForEntity(
-            "$baseUrl/", entity, ShortenResponse::class.java
+        val response: ResponseEntity<ShortenResponseDTO> = restTemplate.postForEntity(
+            "$baseUrl/", entity, ShortenResponseDTO::class.java
         )
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
@@ -70,7 +72,7 @@ class MainControllerIT(
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
         assertThat(response.headers.contentType).isEqualTo(MediaType.APPLICATION_JSON)
 
-        val body = objectMapper.readValue(response.body, ResolveResponse::class.java)
+        val body = objectMapper.readValue(response.body, ResolveResponseDTO::class.java)
         assertThat(body.originalUrl).isEqualTo(savedUrl.originalUrl)
     }
 
@@ -110,6 +112,117 @@ class MainControllerIT(
 
             assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
             assertThat(response.body).isEqualTo(ErrorResponseDTO(error = "originalUrl: Must be a valid URL"))
+        }
+
+        @ParameterizedTest
+        @ValueSource(
+            strings =
+                [
+                    "2000-01-01T00:00:00Z",
+                    "2023-10-01T00:00:00Z",
+                ]
+        )
+        fun `should return 400 for expired expiryDate`(timeInPast: String) {
+            val request = mapOf(
+                "original_url" to "https://example.com",
+                "expiry_date" to timeInPast
+            )
+
+            val entity = HttpEntity(request, headers)
+            val response: ResponseEntity<ErrorResponseDTO> = restTemplate.postForEntity(
+                "$baseUrl/", entity, ErrorResponseDTO::class.java
+            )
+
+            assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+            assertThat(response.body?.error).contains("expiryDate: The date must be in the future")
+        }
+
+        @Test
+        fun `should return 201 for valid future expiryDate`() {
+            val request = mapOf(
+                "original_url" to "https://example.com",
+                "expiry_date" to Instant.now().plusSeconds(3600).toString()
+            )
+
+            val entity = HttpEntity(request, headers)
+            val response: ResponseEntity<ShortenResponseDTO> = restTemplate.postForEntity(
+                "$baseUrl/", entity, ShortenResponseDTO::class.java
+            )
+
+            assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
+            assertThat(response.body?.shortenedUrl).isNotNull()
+        }
+
+        @Test
+        fun `should return 201 for valid deep in future expiryDate`() {
+            val request = mapOf(
+                "original_url" to "https://example.com",
+                "expiry_date" to "2999-12-31T23:59:59Z"
+            )
+
+            val entity = HttpEntity(request, headers)
+            val response: ResponseEntity<ShortenResponseDTO> = restTemplate.postForEntity(
+                "$baseUrl/", entity, ShortenResponseDTO::class.java
+            )
+
+            assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
+            assertThat(response.body?.shortenedUrl).isNotNull()
+        }
+
+        @ParameterizedTest
+        @ValueSource(
+            strings =
+                [
+                    "not-a-date",
+                    "2023-01-01",
+                    "2023-01-01 12:00:00",
+                    "01-01-2023T12:00:00Z"
+                ]
+        )
+        fun `should return 400 for malformed expiryDate formats`(invalidDate: String) {
+            val request = mapOf(
+                "original_url" to "https://example.com",
+                "expiry_date" to invalidDate
+            )
+
+            val entity = HttpEntity(request, headers)
+            val response: ResponseEntity<ErrorResponseDTO> = restTemplate.postForEntity(
+                "$baseUrl/", entity, ErrorResponseDTO::class.java
+            )
+
+            assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+            assertThat(response.body?.error).contains("expiry_date: Invalid date format for expiryDate. Must be ISO-8601.")
+        }
+
+        @Test
+        fun `should return 400 for empty expiryDate`() {
+            val request = mapOf(
+                "original_url" to "https://example.com",
+                "expiry_date" to ""
+            )
+
+            val entity = HttpEntity(request, headers)
+            val response: ResponseEntity<ErrorResponseDTO> = restTemplate.postForEntity(
+                "$baseUrl/", entity, ErrorResponseDTO::class.java
+            )
+
+            assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+            assertThat(response.body?.error).contains("expiry_date: Invalid date format for expiryDate. Must be ISO-8601.")
+        }
+
+        @Test
+        fun `should return 201 if expiryDate is omitted`() {
+            val request = mapOf(
+                "original_url" to "https://example.com"
+            )
+
+            val entity = HttpEntity(request, headers)
+            val response: ResponseEntity<ShortenResponseDTO> = restTemplate.postForEntity(
+                "$baseUrl/", entity, ShortenResponseDTO::class.java
+            )
+
+            assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
+            assertThat(response.body?.shortenedUrl).isNotNull()
         }
     }
 

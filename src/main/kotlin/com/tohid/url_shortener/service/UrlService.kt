@@ -1,10 +1,10 @@
 package com.tohid.url_shortener.service
 
-import com.tohid.url_shortener.controller.ResolveResponse
-import com.tohid.url_shortener.controller.ShortenRequest
-import com.tohid.url_shortener.controller.ShortenResponse
+import com.tohid.url_shortener.controller.dtos.ResolveResponseDTO
+import com.tohid.url_shortener.controller.dtos.ShortenRequestDTO
+import com.tohid.url_shortener.controller.dtos.ShortenResponseDTO
 import com.tohid.url_shortener.domain.Url
-import com.tohid.url_shortener.domain.toShortenResponse
+import com.tohid.url_shortener.domain.toShortenResponseDTO
 import com.tohid.url_shortener.exception.NotFoundException
 import com.tohid.url_shortener.repository.UrlRepository
 import org.springframework.stereotype.Service
@@ -13,27 +13,30 @@ import org.springframework.stereotype.Service
 class UrlService(
     private val urlRepository: UrlRepository
 ) {
-    fun shorten(shortenRequest: ShortenRequest): ShortenResponse {
-        val existingUrl = urlRepository.findByOriginalUrl(shortenRequest.originalUrl)
+    fun shorten(shortenRequestDTO: ShortenRequestDTO): ShortenResponseDTO {
+        val existingUrl = urlRepository.findByOriginalUrl(shortenRequestDTO.originalUrl)
         return if (existingUrl != null) {
-            existingUrl.toShortenResponse()
+            existingUrl.toShortenResponseDTO()
         } else {
-            val shortUrl = generateShortUrl(shortenRequest)
+            val shortUrl = generateShortUrl(shortenRequestDTO)
             val result = urlRepository.save(shortUrl)
-            result.toShortenResponse()
+            result.toShortenResponseDTO()
         }
     }
 
-    fun resolve(shortUrl: String): ResolveResponse =
-        ResolveResponse(
+    fun resolve(shortUrl: String): ResolveResponseDTO =
+        ResolveResponseDTO(
             originalUrl = urlRepository.findByShortUrl(shortUrl)?.originalUrl ?: throw NotFoundException(
                 "Short URL not found: $shortUrl"
             )
         )
 
-    private fun generateShortUrl(shortenRequest: ShortenRequest) = Url(
-        originalUrl = shortenRequest.originalUrl, shortUrl = generateHash(shortenRequest.originalUrl)
-    )
+    private fun generateShortUrl(shortenRequestDTO: ShortenRequestDTO) =
+        Url(
+            originalUrl = shortenRequestDTO.originalUrl,
+            shortUrl = generateHash(shortenRequestDTO.originalUrl),
+            expiryDate = shortenRequestDTO.expiryDate
+        )
 
     private fun generateHash(originalUrl: String): String = originalUrl.hashCode().toString(36).take(8)
     // check existing URLs in the database

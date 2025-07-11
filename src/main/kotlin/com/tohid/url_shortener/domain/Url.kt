@@ -1,6 +1,6 @@
 package com.tohid.url_shortener.domain
 
-import com.tohid.url_shortener.controller.ShortenResponse
+import com.tohid.url_shortener.controller.dtos.ShortenResponseDTO
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -31,4 +31,8 @@ data class Url(
     val expiryDate: Instant? = null
 )
 
-fun Url.toShortenResponse() = ShortenResponse(shortenedUrl = shortUrl)
+fun Url.toShortenResponseDTO() =
+    ShortenResponseDTO(
+        shortenedUrl = shortUrl,
+        expiryDate = expiryDate
+    )
