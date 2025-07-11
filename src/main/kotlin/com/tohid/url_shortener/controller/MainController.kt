@@ -20,7 +20,7 @@ class MainController(
     private val urlService: UrlService
 ) {
 
-    @PostMapping
+    @PostMapping("/")
     @Operation(summary = "Shorten a URL", description = "Returns a shortened version of the given URL")
     @ApiResponses(
         ApiResponse(responseCode = "201", description = "Short URL successfully created"),

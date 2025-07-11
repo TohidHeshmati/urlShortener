@@ -1,0 +1,13 @@
+### Create a shortened URL
+POST {{baseUrl}}/
+Content-Type: application/json
+Accept: application/json
+
+{
+  "original_url": "https://example.org/very/long/link"
+}
+
+
+### Resolve a short URL
+GET {{baseUrl}}/-mxm7v2
+Accept: application/json
