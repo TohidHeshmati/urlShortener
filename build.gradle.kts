@@ -29,6 +29,8 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.apache.httpcomponents.client5:httpclient5:5.5")
+    testImplementation("org.testcontainers:junit-jupiter:1.19.3")
+    testImplementation("org.testcontainers:mysql:1.19.3")
 
     // Database Libraries
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")

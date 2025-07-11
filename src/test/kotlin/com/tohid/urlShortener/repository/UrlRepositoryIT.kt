@@ -1,18 +1,13 @@
 package com.tohid.urlShortener.repository
 
+import com.tohid.urlShortener.BaseIntegrationTest
 import com.tohid.urlShortener.domain.Url
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.TestConstructor
 import java.time.Instant.now
 
-@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
-@SpringBootTest
-class UrlRepositoryIT(
-    private val urlRepository: UrlRepository,
-) {
+class UrlRepositoryIT() : BaseIntegrationTest() {
     @Test
     fun `deletes existing url`() {
         val expiredUrl =

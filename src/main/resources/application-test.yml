@@ -1,9 +1,11 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3106/url_shortener_service
-    username: root
-    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:63490/url_shortener_test
+    username: test
+    password: test
+  jackson:
+    property-naming-strategy: SNAKE_CASE
 
   jpa:
     hibernate:
@@ -16,10 +18,6 @@ spring:
 
 logging:
   level:
-    org.hibernate.SQL: DEBUG
+    org.hibernate.SQL: WARN
     org:
-      springdoc: DEBUG
-  api-docs:
-    path: /api-docs
-  swagger-ui:
-    path: /swagger-ui.html
+      springdoc: WARN
