@@ -22,3 +22,13 @@ http://localhost:8080/swagger-ui/index.html
 ./gradlew ktlintCheck     
 # Auto-format files
 ./gradlew ktlintFormat    
+
+
+docker:
+```bash
+./gradlew clean build
+```
+then: 
+```bash
+docker build -t url-shortener .
+```
