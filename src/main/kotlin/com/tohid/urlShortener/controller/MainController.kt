@@ -54,7 +54,9 @@ class MainController(
     @GetMapping("/{shortUrl}")
     @Operation(
         summary = "Redirect to the original URL",
-        description = "Redirects to the original URL based on the expiration logic (301 for permanent, 302 for temporary).",
+        description =
+            "Redirects to the original URL based on the expiration logic" +
+                " (301 for permanent, 302 for temporary).",
     )
     @ApiResponses(
         ApiResponse(responseCode = "301", description = "Permanent redirect"),
