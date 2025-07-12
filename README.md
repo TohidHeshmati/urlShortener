@@ -1,4 +1,19 @@
 # URL Shortener
+# URL Shortener 🔗
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Kotlin](https://img.shields.io/badge/Kotlin-JVM%20--%20Backend-blueviolet?logo=kotlin)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen?logo=springboot)
+![Java](https://img.shields.io/badge/Java-21-orange?logo=java)
+![MySQL](https://img.shields.io/badge/MySQL-8-blue?logo=mysql)
+![Redis](https://img.shields.io/badge/Redis-7-red?logo=redis)
+![Gradle](https://img.shields.io/badge/Gradle-Build%20Tool-02303A?logo=gradle)
+![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker)
+![Swagger](https://img.shields.io/badge/Swagger-API%20Docs-%23ClojureGreen?logo=swagger)
+![JUnit](https://img.shields.io/badge/JUnit-5-important?logo=java)
+![Ktlint](https://img.shields.io/badge/Ktlint-Code%20Formatter-blueviolet?logo=kotlin)
+![Flyway](https://img.shields.io/badge/Flyway-DB%20Migration-orange?logo=flyway)
+> A minimal production-ready URL shortener built with Kotlin + Spring Boot 🚀
 ## 📌Project Description
 This project is a URL shortener application that allows users to:
 - send a long URL and receive a shortened version
