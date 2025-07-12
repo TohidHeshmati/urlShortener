@@ -1,11 +1,26 @@
 version: '3.8'
-# docker compose up -d
-# docker-compose up -d
+
 services:
-  mysql:
+  mysql-test:
+    container_name: url-shortener-mysql-test
+    image: mysql:8.0
+    ports:
+      - "63490:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: url_shortener_test
+
+  mysql-local:
+    container_name: url-shortener-mysql-local
     image: mysql:8.0
     ports:
       - "3106:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: url_shortener_service
+      MYSQL_DATABASE: url_shortener_local
+
+  redis:
+    container_name: url-shortener-redis
+    image: redis:7.2
+    ports:
+      - "6379:6379"

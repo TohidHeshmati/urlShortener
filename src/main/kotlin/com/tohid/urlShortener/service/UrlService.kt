@@ -34,6 +34,7 @@ class UrlService(
         return urlRepository.save(url).toShortenResponseDTO()
     }
 
+    @Cacheable(cacheNames = ["short-urls"], key = "#shortUrl")
     fun resolve(shortUrl: String): ResolveResponseDTO {
         val url =
             urlRepository.findByShortUrl(shortUrl)

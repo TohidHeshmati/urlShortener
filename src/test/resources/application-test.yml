@@ -2,8 +2,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:63490/url_shortener_test
-    username: test
-    password: test
+    username: root
+    password: root
   jackson:
     property-naming-strategy: SNAKE_CASE
 
