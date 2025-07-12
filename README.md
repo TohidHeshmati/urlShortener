@@ -126,3 +126,4 @@ docker build -t url-shortener .
 
 
 ### 📝 License
+MIT License
