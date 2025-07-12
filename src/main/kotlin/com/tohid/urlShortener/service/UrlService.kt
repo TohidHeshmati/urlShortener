@@ -52,7 +52,7 @@ class UrlService(
         )
     }
 
-    fun findUrlByShortUrl(shortUrl: String): ResponseEntity<Void> {
+    fun redirecetByShortUrl(shortUrl: String): ResponseEntity<Void> {
         val url = resolve(shortUrl)
         val location = URI.create(url.originalUrl)
         val status =

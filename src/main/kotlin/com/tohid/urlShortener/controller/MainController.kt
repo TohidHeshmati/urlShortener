@@ -66,5 +66,5 @@ class MainController(
     )
     fun redirect(
         @PathVariable shortUrl: String,
-    ) = urlService.findUrlByShortUrl(shortUrl)
+    ) = urlService.redirecetByShortUrl(shortUrl)
 }
