@@ -2,6 +2,14 @@
 # URL Shortener 🔗
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+> A minimal production-ready URL shortener built with Kotlin + Spring Boot 🚀
+## 📌Project Description
+This project is a URL shortener application that allows users to:
+- send a long URL and receive a shortened version
+- resolve a shortened URL to its original long URL
+- hitting the shortened URL and get redirect to the original long URL
+
+### 🛠Tech Stack
 ![Kotlin](https://img.shields.io/badge/Kotlin-JVM%20--%20Backend-blueviolet?logo=kotlin)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen?logo=springboot)
 ![Java](https://img.shields.io/badge/Java-21-orange?logo=java)
@@ -13,26 +21,6 @@
 ![JUnit](https://img.shields.io/badge/JUnit-5-important?logo=java)
 ![Ktlint](https://img.shields.io/badge/Ktlint-Code%20Formatter-blueviolet?logo=kotlin)
 ![Flyway](https://img.shields.io/badge/Flyway-DB%20Migration-orange?logo=flyway)
-> A minimal production-ready URL shortener built with Kotlin + Spring Boot 🚀
-## 📌Project Description
-This project is a URL shortener application that allows users to:
-- send a long URL and receive a shortened version
-- resolve a shortened URL to its original long URL
-- hitting the shortened URL and get redirect to the original long URL
-
-### 🛠Tech Stack
-- Kotlin (JVM)
-- Spring Boot 3.x
-- Java 21
-- MySQL 8
-- Redis 7
-- Gradle
-- Docker
-- Swagger for API documentation
-- JUnit 5 for testing
-- Ktlint for code formatting
-- Flyway for database migrations
-
 ### ✨Features
 - ✅ Shorten long URLs with optional expiration time
 - ✅ Resolve shortened URLs to their original long URLs
