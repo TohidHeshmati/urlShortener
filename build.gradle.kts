@@ -29,8 +29,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.apache.httpcomponents.client5:httpclient5:5.5")
-    testImplementation("org.testcontainers:junit-jupiter:1.19.3")
-    testImplementation("org.testcontainers:mysql:1.19.3")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
 
     // Database Libraries
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -38,6 +37,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     runtimeOnly("org.flywaydb:flyway-mysql")
     implementation("mysql:mysql-connector-java:8.0.33")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
     // documentation
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
@@ -55,4 +55,5 @@ kotlin {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    maxParallelForks = 1
 }
