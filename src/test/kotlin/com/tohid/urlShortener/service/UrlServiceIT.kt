@@ -10,7 +10,6 @@ import java.time.Instant
 import kotlin.test.assertEquals
 
 class UrlServiceIT() : BaseIntegrationTest() {
-
     @Test
     fun `resolves Url from cache if it exists and cache is hit`() {
         val originalUrl = "https://example.com"
@@ -20,7 +19,7 @@ class UrlServiceIT() : BaseIntegrationTest() {
             Url(
                 originalUrl = originalUrl,
                 shortUrl = expectedShortUrl,
-            )
+            ),
         )
 
         val firsResolveFromDB = urlService.resolve(expectedShortUrl)
@@ -37,17 +36,19 @@ class UrlServiceIT() : BaseIntegrationTest() {
     fun `resolved expired Url is deleted from cache and db`() {
         val originalUrl = "https://expired.com"
         val shortUrl = 54321L.toBase62()
-        val expiredUrl = urlRepository.save(
-            Url(
-                originalUrl = originalUrl,
-                shortUrl = shortUrl,
-                expiryDate = Instant.now().minusSeconds(60) // 1 min ago
+        val expiredUrl =
+            urlRepository.save(
+                Url(
+                    originalUrl = originalUrl,
+                    shortUrl = shortUrl,
+                    expiryDate = Instant.now().minusSeconds(60), // 1 min ago
+                ),
             )
-        )
 
-        val exception = assertThrows<NotFoundException> {
-            urlService.resolve(shortUrl)
-        }
+        val exception =
+            assertThrows<NotFoundException> {
+                urlService.resolve(shortUrl)
+            }
         assertEquals("Short URL has expired: $shortUrl", exception.message)
 
         assert(urlRepository.count() == 0L)

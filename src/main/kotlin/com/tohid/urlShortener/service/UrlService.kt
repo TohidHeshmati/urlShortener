@@ -18,7 +18,7 @@ import java.net.URI
 @Service
 class UrlService(
     private val urlRepository: UrlRepository,
-    private val redisIdGenerator: RedisIdGenerator
+    private val redisIdGenerator: RedisIdGenerator,
 ) {
     fun shorten(request: ShortenRequestDTO): ShortenResponseDTO {
         val existing = urlRepository.findByOriginalUrl(request.originalUrl)
@@ -26,11 +26,12 @@ class UrlService(
 
         val id = redisIdGenerator.nextId()
         val shortUrl = id.toBase62()
-        val url = Url(
-            originalUrl = request.originalUrl,
-            shortUrl = shortUrl,
-            expiryDate = request.expiryDate
-        )
+        val url =
+            Url(
+                originalUrl = request.originalUrl,
+                shortUrl = shortUrl,
+                expiryDate = request.expiryDate,
+            )
         return urlRepository.save(url).toShortenResponseDTO()
     }
 

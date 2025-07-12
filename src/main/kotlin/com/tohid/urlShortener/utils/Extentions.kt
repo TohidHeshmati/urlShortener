@@ -2,7 +2,6 @@ package com.tohid.urlShortener.utils
 
 private const val BASE62_CHARSET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-
 fun Long.toBase62(): String {
     require(this >= 0) { "Cannot convert negative numbers to Base62: $this" }
     var num = this

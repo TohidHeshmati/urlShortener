@@ -1,4 +1,4 @@
-package com.tohid.urlShortener.service;
+package com.tohid.urlShortener.service
 
 import com.tohid.urlShortener.controller.dtos.ShortenRequestDTO
 import com.tohid.urlShortener.controller.dtos.ShortenResponseDTO
@@ -6,13 +6,12 @@ import com.tohid.urlShortener.domain.Url
 import com.tohid.urlShortener.repository.UrlRepository
 import com.tohid.urlShortener.utils.toBase62
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.mock
 import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import kotlin.test.assertEquals
 
 class UrlServiceTest {
-
     private val urlRepository: UrlRepository = mock()
     private val redisIdGenerator: RedisIdGenerator = mock()
     private val urlService = UrlService(urlRepository, redisIdGenerator)

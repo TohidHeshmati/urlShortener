@@ -22,7 +22,6 @@ import org.springframework.web.client.RestTemplate
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class BaseIntegrationTest() {
-
     @Autowired
     protected lateinit var urlRepository: UrlRepository
 
@@ -46,7 +45,6 @@ abstract class BaseIntegrationTest() {
 
     protected lateinit var baseUrl: String
 
-
     @BeforeEach
     fun cleanup() {
         baseUrl = "http://localhost:$port"
@@ -54,13 +52,15 @@ abstract class BaseIntegrationTest() {
         urlRepository.deleteAll()
     }
 
-    val headers: HttpHeaders = HttpHeaders().apply {
-        contentType = MediaType.APPLICATION_JSON
-    }
+    val headers: HttpHeaders =
+        HttpHeaders().apply {
+            contentType = MediaType.APPLICATION_JSON
+        }
 
-    val redirectSafeRestTemplate = RestTemplate(
-        HttpComponentsClientHttpRequestFactory().apply {
-            httpClient = HttpClients.custom().disableRedirectHandling().build()
-        },
-    )
+    val redirectSafeRestTemplate =
+        RestTemplate(
+            HttpComponentsClientHttpRequestFactory().apply {
+                httpClient = HttpClients.custom().disableRedirectHandling().build()
+            },
+        )
 }

@@ -20,9 +20,7 @@ import java.net.URI
 import java.time.Instant
 import java.time.Instant.now
 
-
 class MainControllerIT() : BaseIntegrationTest() {
-
     @Test
     fun `should shorten a valid URL`() {
         val entity =

@@ -1,4 +1,4 @@
-package com.tohid.urlShortener.utils;
+package com.tohid.urlShortener.utils
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -8,7 +8,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ExtensionsTest {
-
     private val base62Charset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
     @ParameterizedTest
@@ -19,7 +18,6 @@ class ExtensionsTest {
         assertTrue(base62.length >= 8, "Expected at least 8 characters but got ${base62.length}")
         assertTrue(base62.all { it in base62Charset }, "Base62 contains invalid characters: $base62")
     }
-
 
     @ParameterizedTest
     @ValueSource(longs = [92233720368547758L, Long.MAX_VALUE])

@@ -6,6 +6,6 @@ import java.time.Instant
 data class ResolveResponseDTO(
     val originalUrl: String,
     val expiryDate: Instant? = null,
-): Serializable
+) : Serializable
 
 data class ErrorResponseDTO(val error: String)
