@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import java.net.URI
-import java.time.Instant
 import java.time.Instant.now
 
 class MainControllerIT() : BaseIntegrationTest() {
@@ -31,7 +30,7 @@ class MainControllerIT() : BaseIntegrationTest() {
 
         val response: ResponseEntity<ShortenResponseDTO> =
             restTemplate.postForEntity(
-                "$baseUrl/",
+                shortenEndpoint,
                 entity,
                 ShortenResponseDTO::class.java,
             )
@@ -47,7 +46,7 @@ class MainControllerIT() : BaseIntegrationTest() {
 
         val response: ResponseEntity<String> =
             restTemplate.exchange(
-                "$baseUrl/resolve/${savedUrl.shortUrl}",
+                "$resolveEndpoint/${savedUrl.shortUrl}",
                 HttpMethod.GET,
                 null,
                 String::class.java,
@@ -147,7 +146,7 @@ class MainControllerIT() : BaseIntegrationTest() {
             val entity = HttpEntity(request, headers)
             val response: ResponseEntity<ErrorResponseDTO> =
                 restTemplate.postForEntity(
-                    "$baseUrl/",
+                    shortenEndpoint,
                     entity,
                     ErrorResponseDTO::class.java,
                 )
@@ -162,7 +161,7 @@ class MainControllerIT() : BaseIntegrationTest() {
             val request = ShortenRequestDTO(originalUrl = longUrl)
 
             val entity = HttpEntity(request, headers)
-            val response = restTemplate.postForEntity("$baseUrl/", entity, ErrorResponseDTO::class.java)
+            val response = restTemplate.postForEntity(shortenEndpoint, entity, ErrorResponseDTO::class.java)
 
             assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
         }
@@ -174,7 +173,7 @@ class MainControllerIT() : BaseIntegrationTest() {
             val entity = HttpEntity(request, headers)
             val response: ResponseEntity<ErrorResponseDTO> =
                 restTemplate.postForEntity(
-                    "$baseUrl/",
+                    shortenEndpoint,
                     entity,
                     ErrorResponseDTO::class.java,
                 )
@@ -201,7 +200,7 @@ class MainControllerIT() : BaseIntegrationTest() {
             val entity = HttpEntity(request, headers)
             val response: ResponseEntity<ErrorResponseDTO> =
                 restTemplate.postForEntity(
-                    "$baseUrl/",
+                    shortenEndpoint,
                     entity,
                     ErrorResponseDTO::class.java,
                 )
@@ -215,13 +214,13 @@ class MainControllerIT() : BaseIntegrationTest() {
             val request =
                 mapOf(
                     "original_url" to "https://example.com",
-                    "expiry_date" to Instant.now().plusSeconds(3600).toString(),
+                    "expiry_date" to now().plusSeconds(3600).toString(),
                 )
 
             val entity = HttpEntity(request, headers)
             val response: ResponseEntity<ShortenResponseDTO> =
                 restTemplate.postForEntity(
-                    "$baseUrl/",
+                    shortenEndpoint,
                     entity,
                     ShortenResponseDTO::class.java,
                 )
@@ -241,7 +240,7 @@ class MainControllerIT() : BaseIntegrationTest() {
             val entity = HttpEntity(request, headers)
             val response: ResponseEntity<ShortenResponseDTO> =
                 restTemplate.postForEntity(
-                    "$baseUrl/",
+                    shortenEndpoint,
                     entity,
                     ShortenResponseDTO::class.java,
                 )
@@ -270,7 +269,7 @@ class MainControllerIT() : BaseIntegrationTest() {
             val entity = HttpEntity(request, headers)
             val response: ResponseEntity<ErrorResponseDTO> =
                 restTemplate.postForEntity(
-                    "$baseUrl/",
+                    shortenEndpoint,
                     entity,
                     ErrorResponseDTO::class.java,
                 )
@@ -292,7 +291,7 @@ class MainControllerIT() : BaseIntegrationTest() {
             val entity = HttpEntity(request, headers)
             val response: ResponseEntity<ErrorResponseDTO> =
                 restTemplate.postForEntity(
-                    "$baseUrl/",
+                    shortenEndpoint,
                     entity,
                     ErrorResponseDTO::class.java,
                 )
@@ -313,7 +312,7 @@ class MainControllerIT() : BaseIntegrationTest() {
             val entity = HttpEntity(request, headers)
             val response: ResponseEntity<ShortenResponseDTO> =
                 restTemplate.postForEntity(
-                    "$baseUrl/",
+                    shortenEndpoint,
                     entity,
                     ShortenResponseDTO::class.java,
                 )

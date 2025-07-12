@@ -44,10 +44,14 @@ abstract class BaseIntegrationTest() {
     private var port: Int = 0
 
     protected lateinit var baseUrl: String
+    protected lateinit var shortenEndpoint: String
+    protected lateinit var resolveEndpoint: String
 
     @BeforeEach
     fun cleanup() {
         baseUrl = "http://localhost:$port"
+        shortenEndpoint = "http://localhost:$port/api/v1/shorten"
+        resolveEndpoint = "http://localhost:$port/api/v1/resolve"
         println("Base URL for tests: $baseUrl")
         urlRepository.deleteAll()
     }
