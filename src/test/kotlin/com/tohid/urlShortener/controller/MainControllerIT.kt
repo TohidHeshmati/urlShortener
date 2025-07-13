@@ -21,7 +21,7 @@ import java.time.Instant.now
 
 class MainControllerIT() : BaseIntegrationTest() {
     @Test
-    fun `should shorten a valid URL`() {
+    fun `shortens a valid URL`() {
         val entity =
             HttpEntity(
                 ShortenRequestDTO(originalUrl = "https://www.example.com"),
@@ -41,7 +41,7 @@ class MainControllerIT() : BaseIntegrationTest() {
     }
 
     @Test
-    fun `should resolve shortened URL`() {
+    fun `resolves shortened URL`() {
         val savedUrl = urlRepository.save(makeUrl())
 
         val response: ResponseEntity<String> =
@@ -60,7 +60,7 @@ class MainControllerIT() : BaseIntegrationTest() {
     }
 
     @Test
-    fun `redirects permanently for shortened URL without expiry date`() {
+    fun `redirects permanently status=301 for shortened URL without expiry date`() {
         val savedUrl = urlRepository.save(makeUrl())
 
         val response: ResponseEntity<String> =
@@ -76,7 +76,7 @@ class MainControllerIT() : BaseIntegrationTest() {
     }
 
     @Test
-    fun `redirects temporary for shortened URL with expiry date in future`() {
+    fun `redirects temporary status=302 for shortened URL with expiry date in future`() {
         val savedUrl = urlRepository.save(makeUrl(expiryDate = now().plusSeconds(3600)))
 
         val response: ResponseEntity<String> =
@@ -106,7 +106,8 @@ class MainControllerIT() : BaseIntegrationTest() {
         assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
 
         val body = objectMapper.readValue(response.body, ErrorResponseDTO::class.java)
-        assertThat(body).isEqualTo(ErrorResponseDTO("Short URL has expired: ${savedUrl.shortUrl}"))
+        assertThat(body.time).isBetween(now().minusSeconds(60), now())
+        assertThat(body.error).isEqualTo("Short URL has expired: ${savedUrl.shortUrl}")
     }
 
     @Test
@@ -124,12 +125,13 @@ class MainControllerIT() : BaseIntegrationTest() {
         assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
 
         val body = objectMapper.readValue(response.body, ErrorResponseDTO::class.java)
-        assertThat(body).isEqualTo(ErrorResponseDTO("Short URL has expired: ${savedUrl.shortUrl}"))
+        assertThat(body.time).isBetween(now().minusSeconds(60), now())
+        assertThat(body.error).isEqualTo("Short URL has expired: ${savedUrl.shortUrl}")
         assertThat(urlRepository.findByShortUrl(savedUrl.shortUrl)).isNull()
     }
 
     @Test
-    fun `should return 404 for non-existent short URL`() {
+    fun `returns 404 for non-existent short URL`() {
         val response = restTemplate.getForEntity("$baseUrl/unknown123", String::class.java)
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
@@ -140,7 +142,7 @@ class MainControllerIT() : BaseIntegrationTest() {
     @Nested
     inner class ValidationTests {
         @Test
-        fun `should return 400 for blank URL input`() {
+        fun `returns 400 for blank URL input`() {
             val request = ShortenRequestDTO(originalUrl = "")
 
             val entity = HttpEntity(request, headers)
@@ -152,11 +154,13 @@ class MainControllerIT() : BaseIntegrationTest() {
                 )
 
             assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-            assertThat(response.body).isEqualTo(ErrorResponseDTO(error = "originalUrl: URL must not be blank"))
+            val body = response.body
+            assertThat(body?.error).isEqualTo("originalUrl: URL must not be blank")
+            assertThat(body?.time).isBetween(now().minusSeconds(60), now())
         }
 
         @Test
-        fun `should return 400 when originalUrl exceeds 512 characters`() {
+        fun `returns 400 when originalUrl exceeds 512 characters`() {
             val longUrl = "http://example.com/" + "x".repeat(500)
             val request = ShortenRequestDTO(originalUrl = longUrl)
 
@@ -167,7 +171,7 @@ class MainControllerIT() : BaseIntegrationTest() {
         }
 
         @Test
-        fun `should return 400 for invalid URL input`() {
+        fun `returns 400 for invalid URL input`() {
             val request = ShortenRequestDTO(originalUrl = "not_a_url")
 
             val entity = HttpEntity(request, headers)
@@ -179,7 +183,9 @@ class MainControllerIT() : BaseIntegrationTest() {
                 )
 
             assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-            assertThat(response.body).isEqualTo(ErrorResponseDTO(error = "originalUrl: Must be a valid URL"))
+            val body = response.body
+            assertThat(body?.time).isBetween(now().minusSeconds(60), now())
+            assertThat(body?.error).isEqualTo("originalUrl: Must be a valid URL")
         }
 
         @ParameterizedTest
@@ -190,7 +196,7 @@ class MainControllerIT() : BaseIntegrationTest() {
                     "2023-10-01T00:00:00Z",
                 ],
         )
-        fun `should return 400 for expired expiryDate`(timeInPast: String) {
+        fun `returns 400 for expired expiryDate`(timeInPast: String) {
             val request =
                 mapOf(
                     "original_url" to "https://example.com",
@@ -210,7 +216,7 @@ class MainControllerIT() : BaseIntegrationTest() {
         }
 
         @Test
-        fun `should return 201 for valid future expiryDate`() {
+        fun `returns 201 for valid future expiryDate`() {
             val request =
                 mapOf(
                     "original_url" to "https://example.com",
@@ -230,7 +236,7 @@ class MainControllerIT() : BaseIntegrationTest() {
         }
 
         @Test
-        fun `should return 201 for valid deep in future expiryDate`() {
+        fun `returns 201 for valid deep in future expiryDate`() {
             val request =
                 mapOf(
                     "original_url" to "https://example.com",
@@ -259,7 +265,7 @@ class MainControllerIT() : BaseIntegrationTest() {
                     "01-01-2023T12:00:00Z",
                 ],
         )
-        fun `should return 400 for malformed expiryDate formats`(invalidDate: String) {
+        fun `returns 400 for malformed expiryDate formats`(invalidDate: String) {
             val request =
                 mapOf(
                     "original_url" to "https://example.com",
@@ -281,7 +287,7 @@ class MainControllerIT() : BaseIntegrationTest() {
         }
 
         @Test
-        fun `should return 400 for empty expiryDate`() {
+        fun `returns 400 for empty expiryDate`() {
             val request =
                 mapOf(
                     "original_url" to "https://example.com",
@@ -303,7 +309,7 @@ class MainControllerIT() : BaseIntegrationTest() {
         }
 
         @Test
-        fun `should return 201 if expiryDate is omitted`() {
+        fun `returns 201 if expiryDate is omitted`() {
             val request =
                 mapOf(
                     "original_url" to "https://example.com",

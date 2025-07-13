@@ -43,7 +43,6 @@ val mysqlConnectorVersion = "8.0.33"
 val shedlockVersion = "5.9.0"
 
 // Testing
-val junitLauncherVersion = "1.10.2"
 val mockitoKotlinVersion = "5.1.0"
 val apacheClientVersion = "5.5"
 
@@ -84,7 +83,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:$kotlinVersion")
     testImplementation("org.apache.httpcomponents.client5:httpclient5:$apacheClientVersion")
     testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:$junitLauncherVersion")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 kotlin {

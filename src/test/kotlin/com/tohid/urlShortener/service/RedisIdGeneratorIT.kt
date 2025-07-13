@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 
 class RedisIdGeneratorIT() : BaseIntegrationTest() {
     @Test
-    fun `should increment ID each time`() {
+    fun `id generated with redisIdGenerator increments each time`() {
         val first = redisIdGenerator.nextId()
         val second = redisIdGenerator.nextId()
         val third = redisIdGenerator.nextId()

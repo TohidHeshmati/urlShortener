@@ -3,6 +3,7 @@ package com.tohid.urlShortener
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.tohid.urlShortener.repository.UrlRepository
 import com.tohid.urlShortener.service.RedisIdGenerator
+import com.tohid.urlShortener.service.UrlResolverService
 import com.tohid.urlShortener.service.UrlService
 import org.apache.hc.client5.http.impl.classic.HttpClients
 import org.junit.jupiter.api.BeforeEach
@@ -29,6 +30,9 @@ abstract class BaseIntegrationTest() {
     protected lateinit var urlService: UrlService
 
     @Autowired
+    protected lateinit var urlResolverService: UrlResolverService
+
+    @Autowired
     protected lateinit var restTemplate: TestRestTemplate
 
     @Autowired
@@ -50,10 +54,11 @@ abstract class BaseIntegrationTest() {
     @BeforeEach
     fun cleanup() {
         baseUrl = "http://localhost:$port"
-        shortenEndpoint = "http://localhost:$port/api/v1/shorten"
-        resolveEndpoint = "http://localhost:$port/api/v1/resolve"
+        shortenEndpoint = "http://localhost:$port/api/v1/urls"
+        resolveEndpoint = "http://localhost:$port/api/v1/urls"
         println("Base URL for tests: $baseUrl")
         urlRepository.deleteAll()
+        redisTemplate.connectionFactory?.connection?.flushDb()
     }
 
     val headers: HttpHeaders =

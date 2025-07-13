@@ -1,15 +1,11 @@
 package com.tohid.urlShortener.service
 
-import com.tohid.urlShortener.controller.dtos.ResolveResponseDTO
 import com.tohid.urlShortener.controller.dtos.ShortenRequestDTO
 import com.tohid.urlShortener.controller.dtos.ShortenResponseDTO
 import com.tohid.urlShortener.domain.Url
-import com.tohid.urlShortener.domain.isExpired
 import com.tohid.urlShortener.domain.toShortenResponseDTO
-import com.tohid.urlShortener.exception.NotFoundException
 import com.tohid.urlShortener.repository.UrlRepository
 import com.tohid.urlShortener.utils.toBase62
-import org.springframework.cache.annotation.Cacheable
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
@@ -19,9 +15,10 @@ import java.net.URI
 class UrlService(
     private val urlRepository: UrlRepository,
     private val redisIdGenerator: RedisIdGenerator,
+    private val urlResolverService: UrlResolverService,
 ) {
     fun shorten(request: ShortenRequestDTO): ShortenResponseDTO {
-        val existing = urlRepository.findByOriginalUrl(request.originalUrl)
+        val existing = urlResolverService.getByOriginalUrl(request.originalUrl)
         if (existing != null) return existing.toShortenResponseDTO()
 
         val id = redisIdGenerator.nextId()
@@ -35,25 +32,8 @@ class UrlService(
         return urlRepository.save(url).toShortenResponseDTO()
     }
 
-    @Cacheable(cacheNames = ["short-urls"], key = "#shortUrl")
-    fun resolve(shortUrl: String): ResolveResponseDTO {
-        val url =
-            urlRepository.findByShortUrl(shortUrl)
-                ?: throw NotFoundException("Short URL not found: $shortUrl")
-
-        if (url.isExpired()) {
-            urlRepository.delete(url)
-            throw NotFoundException("Short URL has expired: $shortUrl")
-        }
-
-        return ResolveResponseDTO(
-            originalUrl = url.originalUrl,
-            expiryDate = url.expiryDate,
-        )
-    }
-
-    fun redirecetByShortUrl(shortUrl: String): ResponseEntity<Void> {
-        val url = resolve(shortUrl)
+    fun redirectsByShortUrl(shortUrl: String): ResponseEntity<Void> {
+        val url = urlResolverService.resolve(shortUrl)
         val location = URI.create(url.originalUrl)
         val status =
             if (url.expiryDate != null) {
@@ -64,4 +44,5 @@ class UrlService(
 
         return ResponseEntity.status(status).location(location).build()
     }
+
 }

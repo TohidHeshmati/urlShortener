@@ -10,9 +10,6 @@ import java.time.Instant
 import java.time.format.DateTimeParseException
 
 class SafeInstantDeserializer : JsonDeserializer<Instant?>() {
-    companion object {
-        val logger: Logger = LoggerFactory.getLogger(SafeInstantDeserializer::class.java)
-    }
 
     override fun deserialize(
         p: JsonParser,
@@ -29,4 +26,8 @@ class SafeInstantDeserializer : JsonDeserializer<Instant?>() {
                 Instant::class.java,
             )
         }
+
+    companion object {
+        val logger: Logger = LoggerFactory.getLogger(SafeInstantDeserializer::class.java)
+    }
 }

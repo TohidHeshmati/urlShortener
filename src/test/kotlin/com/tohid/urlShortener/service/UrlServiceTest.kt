@@ -14,10 +14,15 @@ import kotlin.test.assertEquals
 class UrlServiceTest {
     private val urlRepository: UrlRepository = mock()
     private val redisIdGenerator: RedisIdGenerator = mock()
-    private val urlService = UrlService(urlRepository, redisIdGenerator)
+    private val urlResolverService: UrlResolverService = mock()
+    private val urlService = UrlService(
+        urlRepository = urlRepository,
+        redisIdGenerator = redisIdGenerator,
+        urlResolverService = urlResolverService
+    )
 
     @Test
-    fun `should generate new shortened URL if original does not exist`() {
+    fun `generates new shortened URL if original does not exist`() {
         val originalUrl = "https://example.com"
         val request = ShortenRequestDTO(originalUrl)
         val fakeId = 12345L
