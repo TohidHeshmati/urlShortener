@@ -35,6 +35,9 @@ logging:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+url:
+  cleanup:
+    cron: "0 0 2 * * *"
 
 springdoc:
   swagger-ui:

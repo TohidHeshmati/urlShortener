@@ -39,6 +39,9 @@ val jacksonVersion = "2.15.3"
 val flywayVersion = "11.10.1"
 val mysqlConnectorVersion = "8.0.33"
 
+// Shedlock
+val shedlockVersion = "5.9.0"
+
 // Testing
 val junitLauncherVersion = "1.10.2"
 val mockitoKotlinVersion = "5.1.0"
@@ -63,6 +66,10 @@ dependencies {
     // --- Migrations ---
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     runtimeOnly("org.flywaydb:flyway-mysql:$flywayVersion")
+
+    // ---  Shedlock ---
+    implementation("net.javacrumbs.shedlock:shedlock-spring:$shedlockVersion")
+    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc-template:$shedlockVersion")
 
     // --- Validation ---
     implementation("org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion")
