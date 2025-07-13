@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import java.io.Serializable
 import java.time.Instant
 import java.time.Instant.now
 
@@ -24,7 +25,7 @@ data class Url(
     val createdAt: Instant = now(),
     @Column(name = "expiry_date", nullable = true)
     val expiryDate: Instant? = null,
-)
+) : Serializable
 
 fun Url.toShortenResponseDTO() =
     ShortenResponseDTO(

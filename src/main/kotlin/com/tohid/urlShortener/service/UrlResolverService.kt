@@ -31,7 +31,7 @@ class UrlResolverService(
     }
 
 
-    @Cacheable(cacheNames = ["original-urls"], key = "#originalUrl")
+    @Cacheable(cacheNames = ["original-urls"], key = "#originalUrl", unless = "#result == null")
     fun getByOriginalUrl(originalUrl: String): Url? {
         return urlRepository.findByOriginalUrl(originalUrl)
     }

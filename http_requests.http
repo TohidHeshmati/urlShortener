@@ -1,7 +1,13 @@
-### Create a shortened URL
-POST {{baseUrl}}/
-Content-Type: application/json
+# curl -X POST http://localhost:8080/api/v1/urls
+#  -H "Content-Type: application/json"
+#  -H "Accept: application/json"
+#  -d '{
+#    "original_url": "https://example.org/very/long/link"
+#  }'
+
+POST {{baseUrl}}/api/v1/urls
 Accept: application/json
+Content-Type: application/json
 
 {
   "original_url": "https://example.org/very/long/link"
@@ -9,5 +15,21 @@ Accept: application/json
 
 
 ### Resolve a short URL
-GET {{baseUrl}}/-mxm7v2
+# Replace the short code with a real one after creation
+GET {{baseUrl}}/api/v1/urls/00000001
 Accept: application/json
+
+
+### Redirect to original URL
+# This should issue a 301 or 302 redirect
+GET {{baseUrl}}/00000001
+
+
+### Health check
+GET {{baseUrl}}/actuator/health
+Accept: application/json
+
+
+### Swagger UI (open in browser)
+# Just visit this URL in browser for interactive docs
+# http://localhost:8080/swagger-ui/index.html

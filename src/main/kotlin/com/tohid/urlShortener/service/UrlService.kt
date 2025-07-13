@@ -44,5 +44,4 @@ class UrlService(
 
         return ResponseEntity.status(status).location(location).build()
     }
-
 }

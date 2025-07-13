@@ -5,6 +5,8 @@ import com.tohid.urlShortener.domain.Url
 import com.tohid.urlShortener.exception.NotFoundException
 import com.tohid.urlShortener.utils.toBase62
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
+import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.assertThrows
 import java.time.Instant
 import kotlin.test.assertEquals
@@ -56,4 +58,58 @@ class UrlResolverServiceIT : BaseIntegrationTest() {
         assert(cached == null)
     }
 
+        @Test
+    fun `returns Url and caches result from redis cache`() {
+        val originalUrl = "https://example.com/original"
+        val shortUrl = "abc123"
+        urlRepository.save(Url(originalUrl = originalUrl, shortUrl = shortUrl))
+
+        val firstCall = urlResolverService.getByOriginalUrl(originalUrl)
+        assertNotNull(firstCall)
+        assertEquals(originalUrl, firstCall.originalUrl)
+
+        urlRepository.deleteAll()
+        assertEquals(0L, urlRepository.count())
+
+        val secondCall = urlResolverService.getByOriginalUrl(originalUrl)
+        assertNotNull(secondCall)
+        assertEquals(originalUrl, secondCall.originalUrl)
+    }
+
+    @Test
+    fun `returns null and does not cache when originalUrl does not exist`() {
+        val missingUrl = "https://does-not-exist.com"
+
+        val result = urlResolverService.getByOriginalUrl(missingUrl)
+        assertNull(result)
+
+        val cached = redisTemplate.opsForValue().get("original-urls::$missingUrl")
+        assertNull(cached)
+    }
+
+    @Test
+    fun `caches only successful lookups`() {
+        val url = Url(originalUrl = "https://cached.com", shortUrl = "shortyy")
+        urlRepository.save(url)
+
+        // First call caches it
+        val fromDb = urlResolverService.getByOriginalUrl(url.originalUrl)
+        assertNotNull(fromDb)
+
+        // Ensure Redis contains it
+        val redisKey = "original-urls::${url.originalUrl}"
+        val cached = redisTemplate.opsForValue().get(redisKey)
+        assertNotNull(cached)
+    }
+
+    @Test
+    fun `null values are not put in cache`() {
+        val nonExistent = "https://not-in-db.com"
+        val first = urlResolverService.getByOriginalUrl(nonExistent)
+        assertNull(first)
+
+        val redisKey = "original-urls::${nonExistent}"
+        val redisValue = redisTemplate.opsForValue().get(redisKey)
+        assertNull(redisValue)
+    }
 }

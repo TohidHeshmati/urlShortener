@@ -123,7 +123,8 @@ src/
 ./gradlew bootJar
 docker build -t url-shortener .
 ```
-
+> note: There is a curl_commands file in the root directory that contains example curl commands to test the API endpoints.
+> in intellij you can use http_request files to test the API endpoints.
 
 ### 📝 License
 MIT License

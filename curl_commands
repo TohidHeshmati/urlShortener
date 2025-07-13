@@ -1,0 +1,13 @@
+curl -X POST http://localhost:8080/api/v1/urls -H "Content-Type: application/json" -H "Accept: application/json" -d '{"original_url": "https://example.org/very/long/link"}'
+
+curl -X GET http://localhost:8080/api/v1/urls/00000001 -H "Accept: application/json"
+
+curl -L http://localhost:8080/00000001
+
+Health check:
+curl -X GET http://localhost:8080/actuator/health -H "Accept: application/json"
+
+swagger UI:
+xdg-open http://localhost:8080/swagger-ui/index.html
+on mac:
+open http://localhost:8080/swagger-ui/index.html

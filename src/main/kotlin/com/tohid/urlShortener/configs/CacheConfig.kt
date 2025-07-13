@@ -15,6 +15,7 @@ class CacheConfig {
     fun cacheManager(redisConnectionFactory: RedisConnectionFactory): CacheManager {
         val cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
             .entryTtl(Duration.ofMinutes(100))
+            .disableCachingNullValues()
 
         return RedisCacheManager.builder(redisConnectionFactory)
             .cacheDefaults(cacheConfig)
