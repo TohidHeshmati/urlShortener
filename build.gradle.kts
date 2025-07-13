@@ -1,9 +1,14 @@
 plugins {
+    // Kotlin
     kotlin("jvm") version "1.9.25"
     kotlin("plugin.spring") version "1.9.25"
+    id("org.jetbrains.kotlin.plugin.jpa") version "2.0.21"
+
+    // Spring
     id("org.springframework.boot") version "3.5.3"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.jetbrains.kotlin.plugin.jpa") version "2.0.21"
+
+    // Tools
     id("org.flywaydb.flyway") version "9.22.0"
     id("org.jlleitschuh.gradle.ktlint") version "12.0.3"
 }
@@ -20,32 +25,59 @@ java {
 repositories {
     mavenCentral()
 }
+// Kotlin
+val kotlinVersion = "1.9.25"
+
+// Spring
+val springVersion = "3.5.3"
+val springDocVersion = "2.8.9"
+
+// Jackson
+val jacksonVersion = "2.15.3"
+
+// JPA & DB
+val flywayVersion = "11.10.1"
+val mysqlConnectorVersion = "8.0.33"
+
+// Testing
+val junitLauncherVersion = "1.10.2"
+val mockitoKotlinVersion = "5.1.0"
+val apacheClientVersion = "5.5"
+
+// Validation
+val hibernateValidatorVersion = "8.0.2.Final"
+val jakartaValidationVersion = "3.1.1"
+
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.apache.httpcomponents.client5:httpclient5:5.5")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
+    // --- Core ---
+    implementation("org.springframework.boot:spring-boot-starter-web:$springVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
-    // Database Libraries
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.flywaydb:flyway-core")
-    runtimeOnly("org.flywaydb:flyway-mysql")
-    implementation("mysql:mysql-connector-java:8.0.33")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    // --- Spring Data & Persistence ---
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa:$springVersion")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis:$springVersion")
+    implementation("mysql:mysql-connector-java:$mysqlConnectorVersion")
 
-    // documentation
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    // --- Migrations ---
+    implementation("org.flywaydb:flyway-core:$flywayVersion")
+    runtimeOnly("org.flywaydb:flyway-mysql:$flywayVersion")
 
-    // validation
-    implementation("org.hibernate.validator:hibernate-validator")
-    implementation("jakarta.validation:jakarta.validation-api")
+    // --- Validation ---
+    implementation("org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion")
+    implementation("jakarta.validation:jakarta.validation-api:$jakartaValidationVersion")
+
+    // --- Documentation & Monitoring ---
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion")
+    implementation("org.springframework.boot:spring-boot-starter-actuator:$springVersion")
+
+    // --- Testing ---
+    testImplementation("org.springframework.boot:spring-boot-starter-test:$springVersion")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:$kotlinVersion")
+    testImplementation("org.apache.httpcomponents.client5:httpclient5:$apacheClientVersion")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:$junitLauncherVersion")
 }
 
 kotlin {
